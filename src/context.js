@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import items from "./data";
+// import items from "./data";
+import Client from "./Contentful";
 // Context es una forma de pasar datos que pueden considerarse Globales a un árbol de componentes sin la necesidad de utilizar Redux.
 const RoomContext = React.createContext(); // se crea el contexto
 
@@ -21,20 +22,32 @@ class RoomProvider extends Component {
     pets: false
   };
   // get Data
+  getData = async () => {
+    try {
+      let response = await Client.getEntries({
+        content_type: "beachResortRoom",
+        order: "sys.createdAt"
+      });
+      let rooms = this.formatData(response.items); // retorna tempItems
+      let featuredRooms = rooms.filter(room => room.featured === true);
+      let maxPrice = Math.max(...rooms.map(item => item.price));
+      let maxSize = Math.max(...rooms.map(item => item.size));
+      this.setState({
+        rooms,
+        featuredRooms,
+        sortedRooms: rooms,
+        loading: false,
+        price: maxPrice,
+        maxPrice,
+        maxSize
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   componentDidMount() {
-    let rooms = this.formatData(items); // retorna tempItems
-    let featuredRooms = rooms.filter(room => room.featured === true);
-    let maxPrice = Math.max(...rooms.map(item => item.price));
-    let maxSize = Math.max(...rooms.map(item => item.size));
-    this.setState({
-      rooms,
-      featuredRooms,
-      sortedRooms: rooms,
-      loading: false,
-      price: maxPrice,
-      maxPrice,
-      maxSize
-    });
+    this.getData()
   }
 
   formatData(items) {
@@ -48,6 +61,7 @@ class RoomProvider extends Component {
   }
 
   getRoom = slug => {
+    // retorna el room con el slug deseado
     let tempRooms = [...this.state.rooms];
     const room = tempRooms.find(room => room.slug === slug);
     return room;

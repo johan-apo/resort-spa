@@ -62,7 +62,7 @@ export default function RoomsFilter({ rooms }) {
         {/* end select type */}
         {/* guests */}
         <div className="form-group">
-          <label htmlFor="capacity">Room type</label>
+          <label htmlFor="capacity">Guest</label>
           <select
             name="capacity"
             id="capacity"
